@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
-const { PteroApp } = require('@devnote-dev/ptero');
+const { PteroApp } = require('@devnote-dev/pterojs');
 
 module.exports = {
     data: new SlashCommandBuilder()

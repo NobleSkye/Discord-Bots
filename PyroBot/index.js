@@ -38,24 +38,26 @@ client.once('clientReady', async () => {
     console.log(`[INFO] Logged in as ${client.user.tag}`);
     console.log(`[INFO] Bot is ready and serving ${client.guilds.cache.size} guilds`);
     
-    // Clear and re-register commands on startup
+    // Clear and re-register commands on startup (for user-installed apps)
     try {
         console.log('[INFO] Clearing old commands and registering new ones...');
         const rest = new REST().setToken(process.env.DISCORD_TOKEN);
         
-        // Clear all existing commands
+        // Clear and register global commands (for user apps)
         await rest.put(
             Routes.applicationCommands(process.env.DISCORD_CLIENT_ID),
             { body: [] },
         );
-        console.log('[SUCCESS] Cleared all old commands.');
+        console.log('[SUCCESS] Cleared all old global commands.');
         
-        // Register current commands
+        // Register new global commands
         const data = await rest.put(
             Routes.applicationCommands(process.env.DISCORD_CLIENT_ID),
             { body: commands },
         );
-        console.log(`[SUCCESS] Successfully registered ${data.length} application (/) commands.`);
+        console.log(`[SUCCESS] ✅ Registered ${data.length} global commands.`);
+        console.log('[INFO] ⏰ Global commands may take up to 1 hour to update everywhere.');
+        
     } catch (error) {
         console.error('[ERROR] Failed to refresh commands:', error);
     }

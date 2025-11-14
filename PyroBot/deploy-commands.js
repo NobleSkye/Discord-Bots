@@ -28,21 +28,27 @@ const rest = new REST().setToken(process.env.DISCORD_TOKEN);
     try {
         console.log(`[INFO] Started refreshing ${commands.length} application (/) commands.`);
 
-        // Clear all existing commands first (both global and guild)
-        console.log('[INFO] Clearing old commands...');
+        // Clear all existing global commands first
+        console.log('[INFO] Clearing old global commands...');
         await rest.put(
             Routes.applicationCommands(process.env.DISCORD_CLIENT_ID),
             { body: [] },
         );
-        console.log('[SUCCESS] Cleared all old commands.');
+        console.log('[SUCCESS] Cleared all old global commands.');
 
-        // The put method is used to fully refresh all commands with the current set
+        // For user apps, we need to deploy globally
+        console.log('[INFO] Deploying commands globally (for user-installed app)...');
+        console.log('[INFO] Note: Global commands may take up to 1 hour to update.');
+        
         const data = await rest.put(
             Routes.applicationCommands(process.env.DISCORD_CLIENT_ID),
             { body: commands },
         );
-
-        console.log(`[SUCCESS] Successfully reloaded ${data.length} application (/) commands.`);
+        
+        console.log(`[SUCCESS] ✅ Successfully deployed ${data.length} global commands!`);
+        console.log('[INFO] ⏰ Commands may take up to 1 hour to fully update in Discord.');
+        console.log('[INFO] You can also try restarting Discord client to see changes faster.');
+        
     } catch (error) {
         console.error('[ERROR] Failed to deploy commands:', error);
     }

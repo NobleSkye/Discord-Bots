@@ -1,0 +1,10 @@
+node_modules
+npm-debug.log
+.env
+.gitignore
+README.md
+.DS_Store
+webhook-config.json
+webhook.db
+webhook.db-shm
+webhook.db-wal

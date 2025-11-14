@@ -1,0 +1,17 @@
+#version: '3.8'
+
+services:
+  paggerbot:
+    build: .
+    container_name: paggerbot
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      # Persist database using named volume
+      - paggerbot-data:/app/data
+    environment:
+      - NODE_ENV=production
+
+volumes:
+  paggerbot-data:

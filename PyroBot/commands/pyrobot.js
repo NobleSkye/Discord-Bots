@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
-const { Client: PteroClient } = require('pyrodactyl');
+const { PteroApp } = require('@devnote-dev/ptero');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -37,10 +37,10 @@ module.exports = {
 
         // Test the API credentials before saving
         try {
-            const ptero = new PteroClient(panelUrl, apiKey);
+            const ptero = new PteroApp(panelUrl, apiKey);
             
-            // Try to fetch account details to verify credentials
-            await ptero.getAccountDetails();
+            // Try to fetch servers to verify credentials
+            await ptero.client.servers.getAll();
 
             // Save credentials to database
             interaction.client.db.saveUser(userId, apiKey, panelUrl);

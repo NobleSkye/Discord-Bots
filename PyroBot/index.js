@@ -1,5 +1,5 @@
 require('dotenv').config();
-const { Client, GatewayIntentBits, Collection } = require('discord.js');
+const { Client, GatewayIntentBits, Collection, REST, Routes } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
 const DatabaseManager = require('./database');
@@ -16,6 +16,7 @@ client.db = new DatabaseManager();
 
 // Load commands
 client.commands = new Collection();
+const commands = [];
 const commandsPath = path.join(__dirname, 'commands');
 const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
 
@@ -25,6 +26,7 @@ for (const file of commandFiles) {
     
     if ('data' in command && 'execute' in command) {
         client.commands.set(command.data.name, command);
+        commands.push(command.data.toJSON());
         console.log(`[INFO] Loaded command: ${command.data.name}`);
     } else {
         console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
@@ -32,9 +34,31 @@ for (const file of commandFiles) {
 }
 
 // Event: Bot is ready
-client.once('clientReady', () => {
+client.once('clientReady', async () => {
     console.log(`[INFO] Logged in as ${client.user.tag}`);
     console.log(`[INFO] Bot is ready and serving ${client.guilds.cache.size} guilds`);
+    
+    // Clear and re-register commands on startup
+    try {
+        console.log('[INFO] Clearing old commands and registering new ones...');
+        const rest = new REST().setToken(process.env.DISCORD_TOKEN);
+        
+        // Clear all existing commands
+        await rest.put(
+            Routes.applicationCommands(process.env.DISCORD_CLIENT_ID),
+            { body: [] },
+        );
+        console.log('[SUCCESS] Cleared all old commands.');
+        
+        // Register current commands
+        const data = await rest.put(
+            Routes.applicationCommands(process.env.DISCORD_CLIENT_ID),
+            { body: commands },
+        );
+        console.log(`[SUCCESS] Successfully registered ${data.length} application (/) commands.`);
+    } catch (error) {
+        console.error('[ERROR] Failed to refresh commands:', error);
+    }
 });
 
 // Event: Handle interactions (slash commands)

@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
-const { PteroApp } = require('@devnote-dev/pterojs');
+const Nodeactyl = require('nodeactyl');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -69,7 +69,7 @@ module.exports = {
 
         try {
             // Initialize Pterodactyl client
-            const ptero = new PteroApp(user.panel_url, user.api_key);
+            const client = new Nodeactyl.NodeactylClient(user.panel_url, user.api_key);
 
             const embed = new EmbedBuilder()
                 .setColor('#0099ff')
@@ -77,31 +77,31 @@ module.exports = {
 
             switch (subcommand) {
                 case 'start':
-                    await ptero.client.servers.setPowerState(serverId, 'start');
+                    await client.startServer(serverId);
                     embed.setTitle('✅ Server Starting')
                         .setDescription(`Server \`${serverId}\` is starting up...`)
                         .setColor('#00ff00');
                     break;
 
                 case 'stop':
-                    await ptero.client.servers.setPowerState(serverId, 'stop');
+                    await client.stopServer(serverId);
                     embed.setTitle('🛑 Server Stopping')
                         .setDescription(`Server \`${serverId}\` is shutting down...`)
                         .setColor('#ff9900');
                     break;
 
                 case 'restart':
-                    await ptero.client.servers.setPowerState(serverId, 'restart');
+                    await client.restartServer(serverId);
                     embed.setTitle('🔄 Server Restarting')
                         .setDescription(`Server \`${serverId}\` is restarting...`)
                         .setColor('#0099ff');
                     break;
 
                 case 'status':
-                    const serverDetails = await ptero.client.servers.fetch(serverId);
-                    const serverResources = await ptero.client.servers.getResources(serverId);
+                    const serverDetails = await client.getServerDetails(serverId);
+                    const serverUsage = await client.getServerUsages(serverId);
                     
-                    const state = serverResources.currentState || 'unknown';
+                    const state = serverUsage.attributes?.current_state || 'unknown';
                     const stateEmoji = {
                         'running': '🟢',
                         'starting': '🟡',
@@ -113,21 +113,22 @@ module.exports = {
                         .setDescription(`Server: \`${serverId}\``)
                         .addFields(
                             { name: 'Status', value: `${stateEmoji} ${state.toUpperCase()}`, inline: true },
-                            { name: 'Name', value: serverDetails.name || 'N/A', inline: true },
-                            { name: 'UUID', value: serverDetails.uuid || 'N/A', inline: false }
+                            { name: 'Name', value: serverDetails.attributes?.name || 'N/A', inline: true },
+                            { name: 'UUID', value: serverDetails.attributes?.uuid || 'N/A', inline: false }
                         )
                         .setColor(state === 'running' ? '#00ff00' : '#ff0000');
 
                     // Add resource usage if available
-                    if (serverResources.resources) {
-                        const memory = serverResources.resources.memoryBytes 
-                            ? `${(serverResources.resources.memoryBytes / 1024 / 1024).toFixed(2)} MB` 
+                    const resources = serverUsage.attributes?.resources;
+                    if (resources) {
+                        const memory = resources.memory_bytes 
+                            ? `${(resources.memory_bytes / 1024 / 1024).toFixed(2)} MB` 
                             : 'N/A';
-                        const cpu = serverResources.resources.cpuAbsolute 
-                            ? `${serverResources.resources.cpuAbsolute.toFixed(2)}%` 
+                        const cpu = resources.cpu_absolute 
+                            ? `${resources.cpu_absolute.toFixed(2)}%` 
                             : 'N/A';
-                        const disk = serverResources.resources.diskBytes 
-                            ? `${(serverResources.resources.diskBytes / 1024 / 1024).toFixed(2)} MB` 
+                        const disk = resources.disk_bytes 
+                            ? `${(resources.disk_bytes / 1024 / 1024).toFixed(2)} MB` 
                             : 'N/A';
 
                         embed.addFields(

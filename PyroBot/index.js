@@ -32,7 +32,7 @@ for (const file of commandFiles) {
 }
 
 // Event: Bot is ready
-client.once('ready', () => {
+client.once('clientReady', () => {
     console.log(`[INFO] Logged in as ${client.user.tag}`);
     console.log(`[INFO] Bot is ready and serving ${client.guilds.cache.size} guilds`);
 });

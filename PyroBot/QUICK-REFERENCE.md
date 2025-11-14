@@ -60,7 +60,7 @@ Configure your Pterodactyl credentials (required first step)
 
 ### Initial Setup
 ```
-/pyrobot api_key:ptlc_your_key_here panel_url:https://panel.example.com
+/pyrobot api_key:pyro_your_key_here panel_url:https://panel.example.com
 ```
 
 ### Starting a Server
@@ -88,7 +88,7 @@ Configure your Pterodactyl credentials (required first step)
 ## Tips
 
 - ✅ All responses are **ephemeral** (only you can see them)
-- 🔐 Use **Client API keys** (ptlc_) not Application keys
+- 🔐 Use **Client API keys** (pyro_) not Application keys
 - 📋 Use `/server list` to find your server identifiers
 - ⚡ The `/server` commands are quick shortcuts for common tasks
 - 🚀 The `/pterodactyl` commands offer advanced features

@@ -120,7 +120,7 @@ Existing commands remain:
 
 1. **Initial Setup:**
    ```
-   /pyrobot api_key:ptlc_your_key panel_url:https://panel.example.com
+   /pyrobot api_key:pyro_your_key panel_url:https://panel.example.com
    ```
 
 2. **Quick Server Control:**

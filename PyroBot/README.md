@@ -17,7 +17,7 @@ Configure your Pterodactyl API credentials.
 
 **Example:**
 ```
-/pyrobot ptlc_your_api_key_here https://panel.example.com
+/pyrobot pyro_your_api_key_here https://panel.example.com
 ```
 
 ### `/server start <server_id>`

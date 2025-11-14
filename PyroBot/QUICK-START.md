@@ -93,7 +93,7 @@ Start a server
 **Solution:** Run `/pyrobot` with your credentials
 
 **Problem:** "Authentication failed"
-**Solution:** Check your API key is correct (Client API key, starts with `ptlc_`)
+**Solution:** Check your API key is correct (Client API key, starts with `pyro_`)
 
 **Problem:** "Server not found"
 **Solution:** Use `/server list` to get the correct server ID
@@ -101,7 +101,7 @@ Start a server
 ### Security Tips
 
 ✅ **DO:**
-- Use Client API keys (ptlc_)
+- Use Client API keys (pyro__)
 - Keep your API key private
 - Use different API keys for different bots
 

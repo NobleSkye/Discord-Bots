@@ -81,7 +81,7 @@ Configure your Pterodactyl API credentials (required first step).
 
 **Example:**
 ```
-/pyrobot api_key:ptlc_abc123xyz panel_url:https://panel.example.com
+/pyrobot api_key:pyro_abc123xyz panel_url:https://panel.example.com
 ```
 
 ---
@@ -181,7 +181,7 @@ List all databases for a server.
 ⚠️ **Important Security Information:**
 
 1. **API Keys are stored securely** - Each user's API key is stored in a local SQLite database and only accessible to that user
-2. **Use Client API Keys** - Always use Pterodactyl Client API keys (starting with `ptlc_`), never Application API keys
+2. **Use Client API Keys** - Always use Pterodactyl Client API keys (starting with `pyro_`), never Application API keys
 3. **Ephemeral Responses** - All command responses are ephemeral (only visible to you) to prevent credential leakage
 4. **Never share your API key** - Keep your API key private and never share it with others
 

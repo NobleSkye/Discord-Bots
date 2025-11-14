@@ -48,6 +48,22 @@ module.exports = {
                         .setDescription('The server identifier')
                         .setRequired(true)
                 )
+        )
+        .addSubcommand(subcommand =>
+            subcommand
+                .setName('kill')
+                .setDescription('Force kill your server')
+                .addStringOption(option =>
+                    option
+                        .setName('server_id')
+                        .setDescription('The server identifier')
+                        .setRequired(true)
+                )
+        )
+        .addSubcommand(subcommand =>
+            subcommand
+                .setName('list')
+                .setDescription('List all your servers')
         ),
 
     async execute(interaction) {
@@ -55,7 +71,7 @@ module.exports = {
 
         const userId = interaction.user.id;
         const subcommand = interaction.options.getSubcommand();
-        const serverId = interaction.options.getString('server_id');
+        const serverId = subcommand !== 'list' ? interaction.options.getString('server_id') : null;
 
         // Get user's credentials from database
         const user = interaction.client.db.getUser(userId);
@@ -96,6 +112,36 @@ module.exports = {
                         .setDescription(`Server \`${serverId}\` is restarting...`)
                         .setColor('#0099ff');
                     break;
+
+                case 'kill':
+                    await client.killServer(serverId);
+                    embed.setTitle('⚠️ Server Killed')
+                        .setDescription(`Server \`${serverId}\` has been forcefully stopped.`)
+                        .setColor('#ff0000');
+                    break;
+
+                case 'list':
+                    const servers = await client.getClientServers();
+                    
+                    if (!servers.data || servers.data.length === 0) {
+                        return interaction.editReply({
+                            content: '📭 You don\'t have any servers.',
+                            ephemeral: true
+                        });
+                    }
+
+                    const serverList = servers.data.map((server, index) => {
+                        const attrs = server.attributes;
+                        return `**${index + 1}.** \`${attrs.identifier}\` - ${attrs.name}`;
+                    }).join('\n');
+
+                    embed.setTitle('📋 Your Servers')
+                        .setDescription(serverList)
+                        .setFooter({ text: `Total: ${servers.data.length} server(s)` })
+                        .setColor('#0099ff');
+                    
+                    await interaction.editReply({ embeds: [embed] });
+                    return; // Return early since we already sent the reply
 
                 case 'status':
                     const serverDetails = await client.getServerDetails(serverId);

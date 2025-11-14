@@ -3,17 +3,18 @@ const path = require('path');
 
 class DatabaseManager {
     constructor() {
-        this.db = new Database(path.join(__dirname, 'data', 'pyrobot.db'));
-        this.initDatabase();
-    }
-
-    initDatabase() {
-        // Create data directory if it doesn't exist
+        // Create data directory if it doesn't exist BEFORE creating database
         const fs = require('fs');
         const dataDir = path.join(__dirname, 'data');
         if (!fs.existsSync(dataDir)) {
             fs.mkdirSync(dataDir, { recursive: true });
         }
+        
+        this.db = new Database(path.join(__dirname, 'data', 'pyrobot.db'));
+        this.initDatabase();
+    }
+
+    initDatabase() {
 
         // Create users table for storing API keys and panel URLs
         this.db.exec(`

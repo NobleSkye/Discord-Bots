@@ -1,5 +1,5 @@
 require('dotenv').config();
-const { Client, GatewayIntentBits, Collection, REST, Routes } = require('discord.js');
+const { Client, GatewayIntentBits, Collection, REST, Routes, MessageFlags } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
 const DatabaseManager = require('./database');
@@ -79,7 +79,7 @@ client.on('interactionCreate', async interaction => {
     } catch (error) {
         console.error(`[ERROR] Error executing ${interaction.commandName}:`, error);
         
-        const errorMessage = { content: 'There was an error while executing this command!', ephemeral: true };
+        const errorMessage = { content: 'There was an error while executing this command!', flags: MessageFlags.Ephemeral };
         
         if (interaction.replied || interaction.deferred) {
             await interaction.followUp(errorMessage);

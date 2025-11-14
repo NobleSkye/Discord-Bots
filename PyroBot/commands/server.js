@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, MessageFlags } = require('discord.js');
 const Nodeactyl = require('nodeactyl');
 
 module.exports = {
@@ -67,7 +67,7 @@ module.exports = {
         ),
 
     async execute(interaction) {
-        await interaction.deferReply({ ephemeral: true });
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
         const userId = interaction.user.id;
         const subcommand = interaction.options.getSubcommand();
@@ -79,7 +79,7 @@ module.exports = {
         if (!user) {
             return interaction.editReply({
                 content: '❌ You need to set up your API key first! Use `/pyrobot <api_key> <panel_url>` to configure.',
-                ephemeral: true
+                flags: MessageFlags.Ephemeral
             });
         }
 
@@ -126,7 +126,7 @@ module.exports = {
                     if (!servers.data || servers.data.length === 0) {
                         return interaction.editReply({
                             content: '📭 You don\'t have any servers.',
-                            ephemeral: true
+                            flags: MessageFlags.Ephemeral
                         });
                     }
 
@@ -208,7 +208,7 @@ module.exports = {
 
             await interaction.editReply({
                 content: errorMessage,
-                ephemeral: true
+                flags: MessageFlags.Ephemeral
             });
         }
     },

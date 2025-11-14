@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, MessageFlags } = require('discord.js');
 const Nodeactyl = require('nodeactyl');
 
 module.exports = {
@@ -19,7 +19,7 @@ module.exports = {
         ),
 
     async execute(interaction) {
-        await interaction.deferReply({ ephemeral: true });
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
         const userId = interaction.user.id;
         const apiKey = interaction.options.getString('api_key');
@@ -31,7 +31,7 @@ module.exports = {
         } catch (error) {
             return interaction.editReply({
                 content: '❌ Invalid panel URL. Please provide a valid URL (e.g., https://panel.example.com)',
-                ephemeral: true
+                flags: MessageFlags.Ephemeral
             });
         }
 
@@ -80,7 +80,7 @@ module.exports = {
 
             await interaction.editReply({
                 content: errorMessage,
-                ephemeral: true
+                flags: MessageFlags.Ephemeral
             });
         }
     },

@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, MessageFlags } = require('discord.js');
 const Nodeactyl = require('nodeactyl');
 
 module.exports = {
@@ -132,7 +132,7 @@ module.exports = {
         ),
 
     async execute(interaction) {
-        await interaction.deferReply({ ephemeral: true });
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
         const userId = interaction.user.id;
         const group = interaction.options.getSubcommandGroup();
@@ -144,7 +144,7 @@ module.exports = {
         if (!user) {
             return interaction.editReply({
                 content: '❌ You need to set up your API key first! Use `/pyrobot <api_key> <panel_url>` to configure.',
-                ephemeral: true
+                flags: MessageFlags.Ephemeral
             });
         }
 
@@ -179,7 +179,7 @@ async function handleServerCommands(interaction, client, subcommand) {
             if (!servers.data || servers.data.length === 0) {
                 return interaction.editReply({
                     content: '📭 You don\'t have any servers.',
-                    ephemeral: true
+                    flags: MessageFlags.Ephemeral
                 });
             }
 
@@ -322,7 +322,7 @@ async function handleAccountCommands(interaction, client, subcommand) {
                 if (!apiKeys.data || apiKeys.data.length === 0) {
                     return interaction.editReply({
                         content: '📭 You don\'t have any API keys.',
-                        ephemeral: true
+                        flags: MessageFlags.Ephemeral
                     });
                 }
 
@@ -369,7 +369,7 @@ async function handleAccountCommands(interaction, client, subcommand) {
                 if (!keyId) {
                     return interaction.editReply({
                         content: '❌ Please provide a key_id to delete. Use `/pterodactyl account api-key list` to see your keys.',
-                        ephemeral: true
+                        flags: MessageFlags.Ephemeral
                     });
                 }
 
@@ -398,7 +398,7 @@ async function handleFileCommands(interaction, client, subcommand) {
             if (!files.data || files.data.length === 0) {
                 return interaction.editReply({
                     content: `📭 No files found in \`${path}\``,
-                    ephemeral: true
+                    flags: MessageFlags.Ephemeral
                 });
             }
 
@@ -433,7 +433,7 @@ async function handleDatabaseCommands(interaction, client, subcommand) {
             if (!databases.data || databases.data.length === 0) {
                 return interaction.editReply({
                     content: '📭 No databases found for this server.',
-                    ephemeral: true
+                    flags: MessageFlags.Ephemeral
                 });
             }
 
@@ -472,7 +472,7 @@ async function handleError(interaction, error) {
 
     await interaction.editReply({
         content: errorMessage,
-        ephemeral: true
+        flags: MessageFlags.Ephemeral
     });
 }
 

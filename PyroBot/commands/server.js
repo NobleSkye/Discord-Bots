@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, EmbedBuilder, MessageFlags } = require('discord.js');
-const Nodeactyl = require('nodeactyl');
+const axios = require('axios');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -84,8 +84,16 @@ module.exports = {
         }
 
         try {
-            // Initialize Pterodactyl client
-            const client = new Nodeactyl.NodeactylClient(user.panel_url, user.api_key);
+            // Create axios instance with auth headers
+            const api = axios.create({
+                baseURL: user.panel_url,
+                headers: {
+                    'Authorization': `Bearer ${user.api_key}`,
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                timeout: 10000
+            });
 
             const embed = new EmbedBuilder()
                 .setColor('#0099ff')
@@ -93,61 +101,62 @@ module.exports = {
 
             switch (subcommand) {
                 case 'start':
-                    await client.startServer(serverId);
+                    await api.post(`/api/client/servers/${serverId}/power`, { signal: 'start' });
                     embed.setTitle('✅ Server Starting')
                         .setDescription(`Server \`${serverId}\` is starting up...`)
                         .setColor('#00ff00');
                     break;
 
                 case 'stop':
-                    await client.stopServer(serverId);
+                    await api.post(`/api/client/servers/${serverId}/power`, { signal: 'stop' });
                     embed.setTitle('🛑 Server Stopping')
                         .setDescription(`Server \`${serverId}\` is shutting down...`)
                         .setColor('#ff9900');
                     break;
 
                 case 'restart':
-                    await client.restartServer(serverId);
+                    await api.post(`/api/client/servers/${serverId}/power`, { signal: 'restart' });
                     embed.setTitle('🔄 Server Restarting')
                         .setDescription(`Server \`${serverId}\` is restarting...`)
                         .setColor('#0099ff');
                     break;
 
                 case 'kill':
-                    await client.killServer(serverId);
+                    await api.post(`/api/client/servers/${serverId}/power`, { signal: 'kill' });
                     embed.setTitle('⚠️ Server Killed')
                         .setDescription(`Server \`${serverId}\` has been forcefully stopped.`)
                         .setColor('#ff0000');
                     break;
 
                 case 'list':
-                    const servers = await client.getClientServers();
+                    const serversResponse = await api.get('/api/client');
                     
-                    if (!servers.data || servers.data.length === 0) {
+                    if (!serversResponse.data?.data || serversResponse.data.data.length === 0) {
                         return interaction.editReply({
                             content: '📭 You don\'t have any servers.',
                             flags: MessageFlags.Ephemeral
                         });
                     }
 
-                    const serverList = servers.data.map((server, index) => {
+                    const serverList = serversResponse.data.data.map((server, index) => {
                         const attrs = server.attributes;
                         return `**${index + 1}.** \`${attrs.identifier}\` - ${attrs.name}`;
                     }).join('\n');
 
                     embed.setTitle('📋 Your Servers')
                         .setDescription(serverList)
-                        .setFooter({ text: `Total: ${servers.data.length} server(s)` })
+                        .setFooter({ text: `Total: ${serversResponse.data.data.length} server(s)` })
                         .setColor('#0099ff');
                     
                     await interaction.editReply({ embeds: [embed] });
                     return; // Return early since we already sent the reply
 
                 case 'status':
-                    const serverDetails = await client.getServerDetails(serverId);
-                    const serverUsage = await client.getServerUsages(serverId);
+                    const serverDetailsResponse = await api.get(`/api/client/servers/${serverId}`);
+                    const serverUsageResponse = await api.get(`/api/client/servers/${serverId}/resources`);
                     
-                    const state = serverUsage.attributes?.current_state || 'unknown';
+                    const serverDetails = serverDetailsResponse.data.attributes;
+                    const state = serverUsageResponse.data.attributes?.current_state || 'unknown';
                     const stateEmoji = {
                         'running': '🟢',
                         'starting': '🟡',
@@ -159,13 +168,13 @@ module.exports = {
                         .setDescription(`Server: \`${serverId}\``)
                         .addFields(
                             { name: 'Status', value: `${stateEmoji} ${state.toUpperCase()}`, inline: true },
-                            { name: 'Name', value: serverDetails.attributes?.name || 'N/A', inline: true },
-                            { name: 'UUID', value: serverDetails.attributes?.uuid || 'N/A', inline: false }
+                            { name: 'Name', value: serverDetails?.name || 'N/A', inline: true },
+                            { name: 'UUID', value: serverDetails?.uuid || 'N/A', inline: false }
                         )
                         .setColor(state === 'running' ? '#00ff00' : '#ff0000');
 
                     // Add resource usage if available
-                    const resources = serverUsage.attributes?.resources;
+                    const resources = serverUsageResponse.data.attributes?.resources;
                     if (resources) {
                         const memory = resources.memory_bytes 
                             ? `${(resources.memory_bytes / 1024 / 1024).toFixed(2)} MB` 
